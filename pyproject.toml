@@ -31,9 +31,9 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/unknown/climate-api#readme"
-Issues = "https://github.com/unknown/climate-api/issues"
-Source = "https://github.com/unknown/climate-api"
+Documentation = "https://github.com/wsharpe41/climate-api#readme"
+Issues = "https://github.com/wsharpe41/climate-api/issues"
+Source = "https://github.com/wsharpe41/climate-api"
 
 [tool.hatch.version]
 path = "src/climate_api/__about__.py"
