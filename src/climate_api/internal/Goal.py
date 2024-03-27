@@ -1,10 +1,13 @@
-from sqlalchemy import Column, Integer, Float, ForeignKey
+"""Goal model."""
+
+from sqlalchemy import Column, Integer, Float
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
 
 class Goal(Base):
+    """Goal model for the database."""
     __tablename__ = "goals"
 
     id = Column(Integer, primary_key=True)

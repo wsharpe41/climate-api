@@ -1,22 +1,31 @@
+"""Populate postgres database with data from a local excel file"""
+
 # Read in a csv file from a given path and return each page as a pandas dataframe
+import os
+import sys
+
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-# Import from climate-api
-# do the sys.path.append thing
-import sys
 from climate_api.internal.Year import Year
 from climate_api.internal.Goal import Goal
 from climate_api.internal.Company import Company
-import os
 
 # import os.path
 sys.path.append("S:\PycharmProjects\climate-api\src\climate_api")
 
 
 def read_csv(path: str) -> pd.DataFrame:
+    """Read in a csv file from a given path and return each page as a pandas dataframe
+
+    Args:
+        path (str): Path to the excel file
+
+    Returns:
+        pd.DataFrame: emissions_data, goals, scope12, scope123
+    """
     # Get all sheets from the excel file
     xls = pd.ExcelFile(path)
     emissions_data = pd.read_excel(xls, "All_Emissions_Data")
@@ -27,11 +36,17 @@ def read_csv(path: str) -> pd.DataFrame:
 
 
 # Create a connection to the database
-def connect_to_db() -> None:
-    # Create an engine to connect to the database
-    # Get user variable pg_pass from environment
+def connect_to_db():
+    """
+    Connect to the database
+
+    Returns:
+        sessionmaker.Session: A session to interact with the database
+    """
     pg_pass = os.environ.get("pg_pass")
-    engine = create_engine(f"postgresql+psycopg2://postgres:{pg_pass}@localhost:5432/climate_api")
+    engine = create_engine(
+        f"postgresql+psycopg2://postgres:{pg_pass}@localhost:5432/climate_api"
+    )
     # Create a session to interact with the database
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -40,11 +55,11 @@ def connect_to_db() -> None:
 
 # For each row in goals, create a row in the goals table in the database
 def populate_goals(goals: pd.DataFrame, session) -> None:
-    """_summary_
+    """Populate the goals table with data from csv
 
     Args:
-        goals (pd.DataFrame): _description_
-        session (_type_): _description_
+        goals (pd.DataFrame): Goals page from the excel file
+        session: A session to interact with the database
     """
     goal_id = 1
     for _, row in goals.iterrows():
@@ -56,19 +71,16 @@ def populate_goals(goals: pd.DataFrame, session) -> None:
             scope3_percent_decrease=row["Scope 1,2,3 Goal"],
             reference_year=row["Reference Year"],
         )
-        print(row)
         # Get the Company Name and Link columns from the goals dataframe
         company_name = row["Company Name"]
         report_link = row["Link"]
         #  For every column in goal make and nans into a None
-        for column in goal.__dict__: 
+        for column in goal.__dict__:
             if goal.__dict__[column] != goal.__dict__[column]:
                 goal.__dict__[column] = None
-        
-        
+
         session.add(goal)
         company = session.query(Company).filter(Company.title == company_name).first()
-        print(company,company_name)
         company.goals = goal_id
         company.report_link = report_link
         goal_id += 1
@@ -77,23 +89,15 @@ def populate_goals(goals: pd.DataFrame, session) -> None:
 
 
 # For each row in the emissions_data make a Year object and add it to the emissions dictionary
-def populate_emissions(
-    emissions_data: pd.DataFrame, scope12: pd.DataFrame, scope123: pd.DataFrame, session
-) -> None:
+def populate_emissions(scope12: pd.DataFrame, scope123: pd.DataFrame, session) -> None:
     """_summary_
 
     Args:
         emissions_data (pd.DataFrame): _description_
         session (_type_): _description_
     """
-    # Each row in the scope12 dataframe is a company
-    # Each row in the scope123 dataframe is a company
-    # The Company Name Column is Name+ 1+2 in scope12 and Name+ 1+2+3 in scope123
-    # Each column after the company name is a year from 2005 to 2023
 
     # Merge scope12 and scope123 on the company name minus the 1+2 or 1+2+3
-    # This will give us a dataframe with the company name and all the years from 2005 to 2023
-    # In scope12 and scope123 strip the company name of the 1+2 or 1+2+3 and merge the two dataframes on the company name
     scope12["Company Name"] = scope12["Company Name"].str.replace("1+2", "")
     scope123["Company Name"] = scope123["Company Name"].str.replace("1+2+3", "")
     # Now that the company names are the same we can merge the two dataframes
@@ -135,19 +139,19 @@ def populate_emissions(
 
         company_id += 1
         print(company)
- 
+
     session.commit()
 
 
 if __name__ == "__main__":
     # Read in the data
-    emissions_data, goals, scope12, scope123 = read_csv(
+    _, csv_goals, csv_scope12, csv_scope123 = read_csv(
         "C:\\Users\\Will\\Downloads\\Fortune_500_fixed.xlsx"
     )
     # Connect to the database
-    session = connect_to_db()
+    db_session = connect_to_db()
     # Populate the goals table
     #
     # Populate the emissions table
-    #populate_emissions(emissions_data, scope12, scope123, session)   
-    populate_goals(goals, session)
+    populate_emissions(csv_scope12, csv_scope123, db_session)
+    populate_goals(csv_goals, db_session)

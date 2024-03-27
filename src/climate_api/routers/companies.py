@@ -1,13 +1,18 @@
+"""This module contains the FastAPI router for the companies endpoint."""
+
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 from ..models import Company, Year, Goal
 from .. import crud
-from sqlalchemy.orm import Session
 from ..database import SessionLocal
 
 router = APIRouter()
 
 
 def get_db():
+    """
+    Get a database connection and close it after use
+    """
     db = SessionLocal()
     try:
         yield db
@@ -16,7 +21,16 @@ def get_db():
 
 
 def get_change(years: list, scope: str) -> float:
-    # For years find the change in emissions from the most recent year to the oldest year
+    """
+    For years find the change in emissions from the most recent year to the oldest year
+
+    Args:
+        years (list): All years for a company
+        scope (str): Emissions scope to compare
+
+    Returns:
+        float: Absolute change in emissions
+    """
     if len(years) < 2:
         return 0, 0
 
@@ -35,19 +49,39 @@ def get_change(years: list, scope: str) -> float:
     return latest, earliest
 
 
-@router.get("/companies", tags=["companies"])
+@router.get("/companies", tags=["companies"], response_model=list[Company])
 async def get_companies_list(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 ):
-    # Query companies table in database and return list of companies
+    """
+    Query companies table in database and return list of companies
+    Args:
+        skip (int, optional): Amount of results to skip. Defaults to 0.
+        limit (int, optional): Limit on results #. Defaults to 100.
+        db (Session, optional): Database session. Defaults to Depends(get_db).
+
+    Returns:
+        list: List of comapny objects
+    """
     return crud.get_companies(db=db, skip=skip, limit=limit)
 
 
 @router.get("/companies/{company}", tags=["companies"], response_model=Company)
 async def get_company(company: str, db: Session = Depends(get_db)):
-    # Return company object
+    """
+    Get a company by name
+
+    Args:
+        company (str): Company Name
+        db (Session, optional): DB session. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: 404 if company not found
+
+    Returns:
+        Company: Company object
+    """
     company = crud.get_company(db=db, company_name=company)
-    # Return 404 if company not found
     if company is None:
         raise HTTPException(status_code=404, detail="Company not found")
     return company
@@ -57,7 +91,19 @@ async def get_company(company: str, db: Session = Depends(get_db)):
     "/companies/{company}/all_years", tags=["companies"], response_model=list[Year]
 )
 async def get_all_company_data(company: str, db: Session = Depends(get_db)):
-    # Return company object
+    """
+    Get all years of data for a company
+
+    Args:
+        company (str): Company Name
+        db (Session, optional): DB session. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: 404 if company not found
+
+    Returns:
+        list[Year]: List of Year objects
+    """
     company_data = crud.get_company_years(db=db, company_name=company)
     if company_data is None:
         raise HTTPException(status_code=404, detail="Company not found")
@@ -65,14 +111,28 @@ async def get_all_company_data(company: str, db: Session = Depends(get_db)):
 
 
 @router.get("/companies/{company}/change_1_2", tags=["companies"], response_model=float)
-async def get_company_change_1_2(company: str, db: Session = Depends(get_db),percent: bool = False):
-    # get_crompany_year from
+async def get_company_change_1_2(
+    company: str, db: Session = Depends(get_db), percent: bool = False
+):
+    """
+    Get the change in emissions for a company from the most recent year to the oldest year
+    Args:
+        company (str): Company Name
+        db (Session, optional): DB session. Defaults to Depends(get_db).
+        percent (bool, optional): If you want percent or absolute change. Defaults to False.
+
+    Raises:
+        HTTPException: _description_
+        HTTPException: _description_
+
+    Returns:
+        float: Absolute or percent change in emissions
+    """
     years = crud.get_company_years(db=db, company_name=company)
     if years is None:
         raise HTTPException(
             status_code=404, detail=f"No data found for {company} not found"
         )
-    # For years find the change in emissions from the most recent year to the oldest year
     e, s = get_change(years, "scope1_2")
     if e == 0 or s == 0:
         raise HTTPException(
@@ -80,21 +140,37 @@ async def get_company_change_1_2(company: str, db: Session = Depends(get_db),per
         )
     if percent:
         return 100 * (e - s) / s
-    else:
-        return e - s
+    return e - s
 
 
 @router.get(
     "/companies/{company}/change_1_2_3", tags=["companies"], response_model=float
 )
-async def get_company_change_1_2_3(company: str, db: Session = Depends(get_db),percent: bool = False):
-    # get_crompany_year from
+async def get_company_change_1_2_3(
+    company: str, db: Session = Depends(get_db), percent: bool = False
+):
+    """
+    Get the change in all emissions for a company from the most recent year to the oldest year
+
+    Args:
+        company (str): Company Name
+        db (Session, optional): DB session. Defaults to Depends(get_db).
+        percent (bool, optional): Whether or not to return percent change Defaults to False.
+
+    Raises:
+        HTTPException: 404 if company not found
+        HTTPException: 404 if no change data found
+
+    Returns:
+        float: Absolute or percent change in emissions
+    """
+
     years = crud.get_company_years(db=db, company_name=company)
     if years is None:
         raise HTTPException(
             status_code=404, detail=f"No data found for {company} not found"
         )
-    # For years find the change in emissions from the most recent year to the oldest year
+
     e, s = get_change(years, "scope1_2_3")
     if e == 0 or s == 0:
         raise HTTPException(
@@ -102,8 +178,7 @@ async def get_company_change_1_2_3(company: str, db: Session = Depends(get_db),p
         )
     if percent:
         return 100 * (e - s) / s
-    else:
-        return e - s
+    return e - s
 
 
 @router.get(
@@ -112,8 +187,29 @@ async def get_company_change_1_2_3(company: str, db: Session = Depends(get_db),p
     response_model=float,
 )
 async def get_company_change_with_years_1_2(
-    company: str, start: int, end: int, db: Session = Depends(get_db), percent: bool = False
+    company: str,
+    start: int,
+    end: int,
+    db: Session = Depends(get_db),
+    percent: bool = False,
 ):
+    """
+    Get the change in emissions for a company between two years
+
+    Args:
+        company (str): Company Name
+        start (int): Start year
+        end (int): End year
+        db (Session, optional): DB session. Defaults to Depends(get_db).
+        percent (bool, optional): Whether or not to return percent change. Defaults to False.
+
+    Raises:
+        HTTPException: 404 if company not found
+        HTTPException: 404 if no data found for start or end year
+    
+    Returns:
+        float: Absolute or percent change in emissions
+    """
     start = crud.get_company_year(db, company, start)
     end = crud.get_company_year(db, company, end)
     if start.scope1_2 is None:
@@ -138,8 +234,29 @@ async def get_company_change_with_years_1_2(
     response_model=float,
 )
 async def get_company_change_with_years_1_2_3(
-    company: str, start: int, end: int, db: Session = Depends(get_db), percent: bool = False
+    company: str,
+    start: int,
+    end: int,
+    db: Session = Depends(get_db),
+    percent: bool = False,
 ):
+    """
+    Get the change in all emissions for a company between two years
+
+    Args:
+        company (str): Company Name
+        start (int): Start year
+        end (int): End year
+        db (Session, optional): DB session. Defaults to Depends(get_db).
+        percent (bool, optional): Whether or not to return percent change. Defaults to False.
+
+    Raises:
+        HTTPException: 404 if company not found
+        HTTPException: 404 if no data found for start or end year
+    
+    Returns:
+        float: Absolute or percent change in emissions
+    """
     start = crud.get_company_year(db, company, start)
     end = crud.get_company_year(db, company, end)
     if start.scope1_2_3 is None:
@@ -154,12 +271,25 @@ async def get_company_change_with_years_1_2_3(
         )
     if percent:
         return 100 * (end.scope1_2_3 - start.scope1_2_3) / start.scope1_2_3
-    else:
-        return end.scope1_2_3 - start.scope1_2_3
+    return end.scope1_2_3 - start.scope1_2_3
 
 
 @router.get("/companies/{company}/goals", tags=["companies"], response_model=Goal)
 async def get_company_goals(company: str, db: Session = Depends(get_db)):
+    """
+    Get the goals for a company
+
+    Args:
+        company (str): Company Name
+        db (Session, optional): DB Session. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: 404 if company not found
+        HTTPException: 404 if no goals found for company
+        
+    Returns:
+        Goal: Goal object
+    """
     comp = crud.get_company(db, company)
     if comp is None:
         raise HTTPException(status_code=404, detail="Company not found")
@@ -171,6 +301,20 @@ async def get_company_goals(company: str, db: Session = Depends(get_db)):
 
 @router.get("/companies/{company}/{year}", tags=["companies"], response_model=Year)
 async def get_company_year(company: str, year: int, db: Session = Depends(get_db)):
+    """
+    Get a specific year of data for a company
+
+    Args:
+        company (str): Company Name
+        year (int): Year
+        db (Session, optional): DB session. Defaults to Depends(get_db).
+
+    Raises:
+        HTTPException: 404 if company not found for year
+
+    Returns:
+        Year: Year object
+    """
     year = crud.get_company_year(db=db, company_name=company, year=year)
     if year is None:
         raise HTTPException(

@@ -1,7 +1,7 @@
 """initial_db
 
 Revision ID: a5cf076c5162
-Revises: 
+Revises:
 Create Date: 2024-03-18 21:23:17.401104
 
 """
@@ -46,16 +46,24 @@ def upgrade() -> None:
         sa.Column("title", sa.String(255), nullable=False),
         sa.Column("description", sa.String(255), nullable=True),
         sa.Column("report_link", sa.String(255), nullable=True),
-        sa.Column("goals", sa.Integer, sa.ForeignKey("goals.id"), nullable=True),
+        sa.Column("goals", sa.Integer,
+                  sa.ForeignKey("goals.id"),
+                  nullable=True),
     )
 
     # Create table for one-to-many relationship between companies and years
     op.create_table(
         "company_years",
         sa.Column(
-            "company_id", sa.Integer, sa.ForeignKey("companies.id"), nullable=False
+            "company_id",
+            sa.Integer,
+            sa.ForeignKey("companies.id"),
+            nullable=False
         ),
-        sa.Column("year_id", sa.Integer, sa.ForeignKey("years.id"), nullable=False),
+        sa.Column("year_id",
+                  sa.Integer,
+                  sa.ForeignKey("years.id"),
+                  nullable=False),
     )
 
 

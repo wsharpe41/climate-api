@@ -17,12 +17,13 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Remove the scope_12_reference_year column and the scope_3_reference_year column from the goals table
     with op.batch_alter_table("goals") as batch_op:
         batch_op.drop_column("scope_12_reference_year")
         batch_op.drop_column("scope_3_reference_year")
     # Add a reference_year column to the goals table
-    op.add_column("goals", sa.Column("reference_year", sa.Integer, nullable=False))
+    op.add_column("goals", sa.Column("reference_year",
+                                     sa.Integer,
+                                     nullable=False))
     # Make every column nullable besided the id column
     with op.batch_alter_table("goals") as batch_op:
         batch_op.alter_column("scope12_target_year", nullable=True)
@@ -33,10 +34,8 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Remove the reference_year column from the goals table
     with op.batch_alter_table("goals") as batch_op:
         batch_op.drop_column("reference_year")
-    # Add the scope_12_reference_year column and the scope_3_reference_year column to the goals table
     with op.batch_alter_table("goals") as batch_op:
         batch_op.add_column(
             sa.Column("scope_12_reference_year", sa.Integer, nullable=False)
