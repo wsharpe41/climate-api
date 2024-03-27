@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class Company(BaseModel):
     """Company model for the API"""
+
     id: int
     title: str
     description: str = None
@@ -12,4 +13,5 @@ class Company(BaseModel):
 
     class Config:
         """Pydantic ORM mode"""
+
         orm_mode = True

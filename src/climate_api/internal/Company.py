@@ -8,6 +8,7 @@ Base = declarative_base()
 
 class Company(Base):
     """Company model for the database."""
+
     __tablename__ = "companies"
 
     id = Column(Integer, primary_key=True)

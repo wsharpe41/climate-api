@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class Goal(BaseModel):
     """Goal model for the API"""
+
     id: int
     scope12_target_year: int = None
     scope12_percent_decrease: float = None
@@ -13,4 +14,5 @@ class Goal(BaseModel):
 
     class Config:
         """Pydantic ORM mode"""
+
         orm_mode = True

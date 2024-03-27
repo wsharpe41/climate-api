@@ -22,7 +22,9 @@ def get_db():
 
 
 @router.get("/year", tags=["years"], response_model=list[Year])
-async def get_all_emissions(db: Session = Depends(get_db), skip: int = 0, limit: int = 200):
+async def get_all_emissions(
+    db: Session = Depends(get_db), skip: int = 0, limit: int = 200
+):
     """
     Get all emissions data
 

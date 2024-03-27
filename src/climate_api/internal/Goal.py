@@ -8,6 +8,7 @@ Base = declarative_base()
 
 class Goal(Base):
     """Goal model for the database."""
+
     __tablename__ = "goals"
 
     id = Column(Integer, primary_key=True)

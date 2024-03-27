@@ -8,6 +8,7 @@ Base = declarative_base()
 
 class CompanyYear(Base):
     """CompanyYear model for the database."""
+
     __tablename__ = "company_years"
 
     company_id = Column(Integer, primary_key=True)

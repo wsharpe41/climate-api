@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class Year(BaseModel):
     """Year model for the API"""
+
     id: int
     year: int
     scope1_2: float = None
@@ -12,4 +13,5 @@ class Year(BaseModel):
 
     class Config:
         """Pydantic ORM mode"""
+
         orm_mode = True

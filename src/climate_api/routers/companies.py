@@ -206,7 +206,7 @@ async def get_company_change_with_years_1_2(
     Raises:
         HTTPException: 404 if company not found
         HTTPException: 404 if no data found for start or end year
-    
+
     Returns:
         float: Absolute or percent change in emissions
     """
@@ -253,7 +253,7 @@ async def get_company_change_with_years_1_2_3(
     Raises:
         HTTPException: 404 if company not found
         HTTPException: 404 if no data found for start or end year
-    
+
     Returns:
         float: Absolute or percent change in emissions
     """
@@ -286,7 +286,7 @@ async def get_company_goals(company: str, db: Session = Depends(get_db)):
     Raises:
         HTTPException: 404 if company not found
         HTTPException: 404 if no goals found for company
-        
+
     Returns:
         Goal: Goal object
     """

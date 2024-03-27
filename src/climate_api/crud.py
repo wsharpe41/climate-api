@@ -11,7 +11,7 @@ from .internal.Goal import Goal
 db_session: ContextVar[Session] = ContextVar("db_session")
 
 
-def get_companies(db: Session, skip: int = 0, limit: int = 100)->list[Company]:
+def get_companies(db: Session, skip: int = 0, limit: int = 100) -> list[Company]:
     """Get all companies in the database
 
     Args:
@@ -20,17 +20,17 @@ def get_companies(db: Session, skip: int = 0, limit: int = 100)->list[Company]:
         limit (int, optional): Max amount of results to return. Defaults to 100.
 
     Returns:
-        list[Company]: List of all companies 
+        list[Company]: List of all companies
     """
     return db.query(Company).offset(skip).limit(limit).all()
 
 
-def get_company(db: Session, company_name: str)->Company:
+def get_company(db: Session, company_name: str) -> Company:
     """Get a company by name
 
     Args:
         db (Session): SQLAlchemy session
-        company_name (str): Name of the company to get 
+        company_name (str): Name of the company to get
 
     Returns:
         Company: Company object that matches the company_name
@@ -38,7 +38,7 @@ def get_company(db: Session, company_name: str)->Company:
     return db.query(Company).filter(Company.title == company_name).first()
 
 
-def get_company_year(db: Session, company_name: str, year: int)->Year:
+def get_company_year(db: Session, company_name: str, year: int) -> Year:
     """Get emissions for a given year and company
 
     Args:
@@ -67,7 +67,7 @@ def get_company_year(db: Session, company_name: str, year: int)->Year:
     return None
 
 
-def get_company_years(db: Session, company_name: str)->list[Year]:
+def get_company_years(db: Session, company_name: str) -> list[Year]:
     """For the company with the given name, get all the years
 
     Args:
@@ -90,7 +90,7 @@ def get_company_years(db: Session, company_name: str)->list[Year]:
     return years
 
 
-def get_goal(db: Session, goal_id: int)->Goal:
+def get_goal(db: Session, goal_id: int) -> Goal:
     """Given a goals id return that goal
 
     Args:
@@ -103,7 +103,7 @@ def get_goal(db: Session, goal_id: int)->Goal:
     return db.query(Goal).filter(Goal.id == goal_id).first()
 
 
-def get_emissions(db: Session, year: int, limit: int = 100)->list[Year]:
+def get_emissions(db: Session, year: int, limit: int = 100) -> list[Year]:
     """Given a year and a scope return the emissions for that year and scope
 
     Args:
@@ -120,7 +120,7 @@ def get_emissions(db: Session, year: int, limit: int = 100)->list[Year]:
     return year_obj
 
 
-def get_all_emissions(db: Session, skip: int = 0, limit: int = 100)->list[Year]:
+def get_all_emissions(db: Session, skip: int = 0, limit: int = 100) -> list[Year]:
     """Get all years with emissions for every company
 
     Args:
@@ -143,7 +143,7 @@ def get_all_emissions(db: Session, skip: int = 0, limit: int = 100)->list[Year]:
     return filtered_years
 
 
-def get_scope3_emissions(db: Session, year: int)->float:
+def get_scope3_emissions(db: Session, year: int) -> float:
     """Get only scope 3 emissions for a given year
 
     Args:
