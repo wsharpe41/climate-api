@@ -3,22 +3,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from ..database import SessionLocal
+from climate_api.routers.companies import get_db
 from .. import crud
 from ..models import Year
 
 router = APIRouter()
-
-
-def get_db():
-    """
-    Get a database connection and close it after use
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/year", tags=["years"], response_model=list[Year])

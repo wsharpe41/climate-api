@@ -1,9 +1,9 @@
 """Test the /year endpoint."""
+from pydantic import ValidationError
 
 from fastapi.testclient import TestClient
 from climate_api.routers.years import router
 from climate_api.models import Year
-from pydantic import ValidationError
 
 client = TestClient(router)
 

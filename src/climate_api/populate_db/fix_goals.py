@@ -1,27 +1,6 @@
 """Fix an error with the goals column in the companies table"""
-import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from climate_api.internal.Company import Company
-
-
-# Create a connection to the database
-def connect_to_db() -> None:
-    """Create a connection to the database
-
-    Returns:
-        None
-    """
-    # Create an engine to connect to the database
-    # Get user variable pg_pass from environment
-    pg_pass = os.environ.get("pg_pass")
-    engine = create_engine(
-        f"postgresql+psycopg2://postgres:{pg_pass}@localhost:5432/climate_api"
-    )
-    # Create a session to interact with the database
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    return session
+from climate_api.populate_db.populate_db import connect_to_db
 
 
 # Every row in the companies table has a goals column that is a foreign key to the goals table
