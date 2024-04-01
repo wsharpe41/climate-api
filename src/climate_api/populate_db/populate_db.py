@@ -7,7 +7,6 @@ import sys
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
 
 from climate_api.internal.Year import Year
 from climate_api.internal.Goal import Goal
