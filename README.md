@@ -1,6 +1,7 @@
 # climate-api
 -----
-![pylint](https://github.com/wsharpe41/climate-api/actions/workflows/pylint.yml/badge.svg)
+![linting](https://github.com/wsharpe41/climate-api/actions/workflows/pylint.yml/badge.svg)
+![tests](https://github.com/wsharpe41/climate-api/actions/workflows/test.yml/badge.svg)
 
 **Table of Contents**
 - [About](#about)
