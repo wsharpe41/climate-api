@@ -1,6 +1,7 @@
 """Test the CRUD operations."""
 import math
 import unittest
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from climate_api.crud import (
@@ -20,9 +21,10 @@ class TestCrudMethods(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        database_url = os.environ.get("HEROKU_DATABASE_URL")
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
         engine = create_engine(
-            "sqlite:///S:\PycharmProjects\climate-api\climate-api.db",
-            connect_args={"check_same_thread": False},
+            database_url,
         )
         Session = sessionmaker(bind=engine)
         cls.session = Session()
@@ -70,12 +72,12 @@ class TestCrudMethods(unittest.TestCase):
         """Test getting all emissions."""
         all_emissions = get_all_emissions(self.session, limit=10)
         self.assertIsNotNone(all_emissions)
-        self.assertEqual(len(all_emissions), 1)
+        self.assertEqual(len(all_emissions), 10)
 
     def test_get_scope3_emissions(self):
         """Test getting scope 3 emissions."""
         scope3_emissions = get_scope3_emissions(self.session, 2022)
-        self.assertEqual(math.floor(scope3_emissions), 3688)
+        self.assertEqual(math.floor(scope3_emissions), 3819)
 
 
 if __name__ == "__main__":

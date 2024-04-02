@@ -11,6 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from climate_api.internal.Year import Year
 from climate_api.internal.Goal import Goal
 from climate_api.internal.Company import Company
+from climate_api.database import SessionLocal
 
 # import os.path
 sys.path.append("S:\PycharmProjects\climate-api\src\climate_api")
@@ -35,22 +36,36 @@ def read_csv(path: str) -> pd.DataFrame:
 
 
 # Create a connection to the database
-def connect_to_db():
+#def connect_to_db():
     """
     Connect to the database
 
     Returns:
         sessionmaker.Session: A session to interact with the database
     """
-    pg_pass = os.environ.get("pg_pass")
-    engine = create_engine(
-        f"postgresql+psycopg2://postgres:{pg_pass}@localhost:5432/climate_api"
-    )
-    # Create a session to interact with the database
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    return session
+#    pg_pass = os.environ.get("pg_pass")
+#    engine = create_engine(
+#        f"postgresql+psycopg2://postgres:{pg_pass}@localhost:5432/climate_api"
+#    )
+#    # Create a session to interact with the database
+#    Session = sessionmaker(bind=engine)
+#    session = Session()
+#    return session
+def get_db():
+    """
+    Get a database connection and close it after use
+    """
+    database_url = os.environ.get("HEROKU_DATABASE_URL")
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+    if not database_url:
+        print("HEROKU_DATABASE_URL environment variable is not set.")
 
+    engine = create_engine(
+        database_url,
+    )
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db = SessionLocal()
+    return db
 
 # For each row in goals, create a row in the goals table in the database
 def populate_goals(goals: pd.DataFrame, session) -> None:
@@ -79,6 +94,8 @@ def populate_goals(goals: pd.DataFrame, session) -> None:
                 goal.__dict__[column] = None
 
         session.add(goal)
+        session.commit()
+        print(company_name)
         company = session.query(Company).filter(Company.title == company_name).first()
         company.goals = goal_id
         company.report_link = report_link
@@ -124,7 +141,7 @@ def populate_emissions(scope12: pd.DataFrame, scope123: pd.DataFrame, session) -
 
         company = Company(
             id=company_id,
-            title=row["Company Name"],
+            title=row["Company Name"].strip(),
         )
         session.add(company)
         session.commit()
@@ -145,12 +162,12 @@ def populate_emissions(scope12: pd.DataFrame, scope123: pd.DataFrame, session) -
 if __name__ == "__main__":
     # Read in the data
     _, csv_goals, csv_scope12, csv_scope123 = read_csv(
-        "C:\\Users\\Will\\Downloads\\Fortune_500_fixed.xlsx"
+        "C:\\Users\\Will\\Downloads\\Fortune_500_better.xlsx"
     )
     # Connect to the database
-    db_session = connect_to_db()
-    # Populate the goals table
-    #
-    # Populate the emissions table
-    populate_emissions(csv_scope12, csv_scope123, db_session)
-    populate_goals(csv_goals, db_session)
+    db_session = get_db()  
+    
+    #populate_emissions(csv_scope12, csv_scope123, db_session)
+    #populate_goals(csv_goals, db_session)
+    #db_session.execute("UPDATE years SET scope1_2 = NULL, scope1_2_3 = NULL WHERE scope1_2 = 'NaN' OR scope1_2_3 = 'NaN';")
+    #db_session.commit()

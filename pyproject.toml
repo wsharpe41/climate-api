@@ -29,6 +29,8 @@ dependencies = [
   "sqlalchemy",
   "fastapi",
   "pydantic",
+  "uvicorn",
+  "psycopg2",
 ]
 
 [project.urls]
