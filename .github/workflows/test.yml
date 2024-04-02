@@ -1,5 +1,4 @@
-name: Run Tests with Coverage
-
+name: Run Tests
 on:
   push:
     branches:
