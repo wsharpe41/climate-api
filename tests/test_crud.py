@@ -4,7 +4,7 @@ import unittest
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from climate_api.crud import (
+from src.climate_api.crud import (
     get_companies,
     get_company,
     get_company_year,

@@ -1,8 +1,8 @@
 """Test the companies endpoint."""
 
 from fastapi.testclient import TestClient
-from climate_api.routers.companies import router
-from climate_api.models import Company, Year, Goal
+from src.climate_api.routers.companies import router
+from src.climate_api.models import Company, Year, Goal
 from pydantic import ValidationError
 
 client = TestClient(router)

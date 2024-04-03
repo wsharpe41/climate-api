@@ -2,8 +2,8 @@
 from pydantic import ValidationError
 
 from fastapi.testclient import TestClient
-from climate_api.routers.years import router
-from climate_api.models import Year
+from src.climate_api.routers.years import router
+from src.climate_api.models import Year
 
 client = TestClient(router)
 
