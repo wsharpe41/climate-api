@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from climate_api.routers.companies import get_db
+from .companies import get_db
 from .. import crud
 from ..models import Year
 

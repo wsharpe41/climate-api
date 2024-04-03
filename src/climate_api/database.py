@@ -9,7 +9,7 @@ import os
 database_url = os.environ.get("HEROKU_DATABASE_URL")
 database_url = database_url.replace("postgres://", "postgresql://", 1)
 if not database_url:
-    print("HEROKU_DATABASE_URL environment variable is not set.")
+    raise ValueError("HEROKU_DATABASE_URL environment variable is not set.")
 
 engine = create_engine(
     database_url,
