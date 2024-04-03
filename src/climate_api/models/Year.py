@@ -1,5 +1,5 @@
 """Year model"""
-
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -8,8 +8,8 @@ class Year(BaseModel):
 
     id: int
     year: int
-    scope1_2: float = None
-    scope1_2_3: float = None
+    scope1_2: Optional[float] = None
+    scope1_2_3: Optional[float] = None
 
     class Config:
         """Pydantic ORM mode"""

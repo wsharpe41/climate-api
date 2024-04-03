@@ -1,4 +1,5 @@
 """Company pydantic model"""
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -7,9 +8,9 @@ class Company(BaseModel):
 
     id: int
     title: str
-    description: str = None
-    goals: int = None
-    report_link: str = None
+    description: Optional[str] = None
+    goals: Optional[int] = None
+    report_link: Optional[str] = None
 
     class Config:
         """Pydantic ORM mode"""
